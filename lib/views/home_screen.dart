@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> decimalVariation;
   int wrongAnswerCounter = 0;
   String guessedLetter = "";
+  AudioCache backgroundPlayer = AudioCache(prefix: 'sound/');
 
   List<String> fieldLetters;
   String targetWord = "TowTow".toLowerCase();
@@ -27,12 +28,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    backgroundPlayer.load('background.mp3').then((v) {
+      playBackgroundSound();
+    });
     fieldLetters = List.generate(6, (i) => "");
     assignControllers();
   }
 
   Future playSound() async {
-    await audioCache.play('/sound/effect.mp3', mode: PlayerMode.LOW_LATENCY);
+    await audioCache.play('sound/effect.mp3', mode: PlayerMode.LOW_LATENCY);
+  }
+
+  void playBackgroundSound() {
+    backgroundPlayer.loop('background.mp3',
+        mode: PlayerMode.MEDIA_PLAYER, volume: .5);
   }
 
   void assignControllers() {
@@ -40,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       painterModels[BodyPart.values[i]] = PainterModel(0, false);
       animationControllerList.add(AnimationController(
         vsync: this,
-        duration: Duration(milliseconds: 1400),
+        duration: Duration(milliseconds: 1100),
         upperBound: 1,
         lowerBound: 0,
       ));
@@ -57,6 +66,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     for (int i = 0; i < 6; i++) {
       animationControllerList[i].dispose();
     }
+    audioCache.clearCache();
+    backgroundPlayer.clearCache();
     super.dispose();
   }
 
